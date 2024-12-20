@@ -15,7 +15,7 @@ interface MySelectProps {
 
 const MySelect: FC<MySelectProps>  = ({option, value, defaultValue, style, onChange}) => {
   return (
-    <select style={{width: '100%', height: '60px', outlineColor: '#f5822a', paddingLeft: '10px', ...style}} value={value} onChange={onChange} defaultValue={defaultValue}>
+    <select style={{width: '100%', height: '60px', outline: 'none', paddingLeft: '10px', background: 'white', appearance: 'none', backgroundColor: 'white', ...style}} value={value} onChange={onChange} defaultValue={defaultValue}>
 
       {option.map((item) => {
         return <option>{item}</option>

@@ -6,11 +6,12 @@ interface MyButtonProps {
   style?: CSSProperties
   onClick?: () => void
   text: string
+  disabled?: boolean
 }
 
-const MyButton: FC<MyButtonProps> = ({ style, onClick, text }) => {
+const MyButton: FC<MyButtonProps> = ({ style, onClick, text, disabled }) => {
   return (
-    <button style={{width: '100%', height: '60px', paddingLeft: '20px', borderRadius: '10px', ...style}} onClick={onClick}>{text}</button>
+    <button style={{width: '100%', height: '60px', paddingLeft: '20px', border: 'none', color: 'white', background: '#FFA155', ...style}} disabled={disabled} onClick={onClick}>{text}</button>
   )
 }
 
