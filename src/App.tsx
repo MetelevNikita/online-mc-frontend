@@ -90,6 +90,12 @@ const App: FC = () => {
       const formData = new FormData()
       formData.append('file', inputFile)
 
+
+      if(!inputFile) {
+        alert('Вы не выбрали файл')
+        return
+      }
+
       const responce = await fetch('http://localhost:5000/api/v1/file', {
         method: 'POST',
         body: formData,
@@ -104,7 +110,6 @@ const App: FC = () => {
   }
 
 
-  console.log(file)
 
   const downloadFile = async (file: any) => {
 
