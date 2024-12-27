@@ -21,16 +21,23 @@ const App: FC = () => {
   const socket = new WebSocket('ws://localhost:5000')
 
   const [inputFile, setInputFile] = useState<any>(null)
-  const [outputPath, setOutputPath] = useState<any>(null)
+  const [image, setImage] = useState<any>(null)
   const [progress, setProgress] = useState<number>(0)
   const [statusText, setStatusText] = useState<string>('')
+
+  //
+
   const [file, setFile] = useState<any>(null)
+  const [logo, setLogo] = useState<any>(null)
+
+  //
+
   const [start, setStart] = useState<boolean>(false)
   const [finish, setFinish] = useState<boolean>(false)
 
 
   const bitrateVideo = ['4000k', '5000k', '6000k', '7000k', '8000k']
-  const aspectRatio = ['16:9', '4:3', '9:16']
+  const aspectRatio = ['16:9', '9:16']
   const sizeVideo = ['640x480', '1280x720', '1920x1080']
 
 
@@ -39,7 +46,6 @@ const App: FC = () => {
   const [bitrate, setBitrate] = useState<string | any>(bitrateVideo[0])
   const [aspect, setAspect] = useState<string | any>(aspectRatio[0])
   const [size, setSize] = useState<string | any>(sizeVideo[0])
-  const [logo, setLogo] = useState<string>('')
 
   // websocket
 
@@ -57,8 +63,6 @@ const App: FC = () => {
 
       const floor = Math.ceil(Number(data.message))
       setProgress(floor)
-
-      console.log(`progress ${data.message}%`)
     } else if (data.event === 'end') {
       setStatusText('Концертация закончилась')
       setFinish(true)
@@ -67,7 +71,7 @@ const App: FC = () => {
   })
 
 
-  const startConversion = (bitrate: string, aspect: string, size: string, logo: string, fileName: string): any => {
+  const startConversion = (bitrate: string, aspect: string, size: string, logo: any, fileName: string): any => {
     try {
 
       if(!fileName) {
@@ -110,6 +114,29 @@ const App: FC = () => {
   }
 
 
+  const postImage = async () => {
+    try {
+
+
+      const formData = new FormData()
+      formData.append('image', image)
+
+      const responce = await fetch('http://localhost:5000/api/v1/image', {
+        method: 'POST',
+        body: formData,
+
+      })
+
+      const data = await responce.json()
+      setLogo(data)
+      return data
+
+    } catch (error: any) {
+      console.log(`Картинка не загружена ${error.message}`)
+    }
+  }
+
+
 
   const downloadFile = async (file: any) => {
 
@@ -127,8 +154,6 @@ const App: FC = () => {
 
 
 
-
-
   // select arr
 
 
@@ -142,8 +167,26 @@ const App: FC = () => {
         </Row>
 
         <Row className="mt-5 d-flex align-items-end">
-          <Col><MyInputFile style={{}} onChange={(e: any) => setInputFile(e.target.files[0])}></MyInputFile></Col>
-          <Col><MyButton style={{}} onClick={() => postFile()} text={'Загрузить файл на сервер'}></MyButton></Col>
+
+
+
+          <Col>
+
+            <span style={{color: 'white'}}>Выберите редактируемый файл</span>
+            <Col className='mb-4'><MyInputFile style={{}} onChange={(e: any) => setInputFile(e.target.files[0])}></MyInputFile></Col>
+            <Col><MyButton style={{}} onClick={() => postFile()} text={'Загрузить файл на сервер'}></MyButton></Col>
+
+          </Col>
+
+
+          <Col>
+
+          <span style={{color: 'white'}}>Выберите логотип</span>
+          <Col className='mb-4'><MyInputFile style={{}} onChange={(e: any) => {setImage(e.target.files[0])}}></MyInputFile></Col>
+          <Col><MyButton style={{}} onClick={() => postImage()} text={'Загрузить картинку на сервер'}></MyButton></Col>
+
+          </Col>
+
         </Row>
 
 
@@ -160,6 +203,22 @@ const App: FC = () => {
             </Col> :
 
             <></>
+
+            }
+
+
+            {
+
+              (logo !== null) ?
+
+              <Col>
+
+                <div style={{color: 'white'}}>Картинка загружена</div>
+                <div  style={{color: 'white'}}>Имя файла {logo.originalname} - Размер файла {logo.size} kb</div>
+
+              </Col> :
+
+              <></>
 
             }
 
@@ -186,12 +245,7 @@ const App: FC = () => {
             </Col>
         </Row>
 
-        <Row className="mt-5">
-            <Col>
-                <span>Вставьте логотип</span>
-                <MyInput style={{}} type="text" value={logo} onChange={e => setLogo(e.target.value)} placeholder="Логотип"></MyInput>
-            </Col>
-        </Row>
+
 
 
 
@@ -208,7 +262,7 @@ const App: FC = () => {
 
         <Row className="mt-5">
 
-          {(finish == true) ? <Col className='d-flex flex-row justify-content-around'><Col md={5}><MyButton style={{}} onClick={() => startConversion(bitrate, aspect, size, logo, file.path)} disabled={true} text={'Файл готов'}></MyButton></Col> <Col md={5}><a href="http://localhost:5000/api/v1/download"><MyButton text={'Скачать'} onClick={() => {downloadFile(file)}}></MyButton></a></Col> </Col>  : <Col><MyButton style={{}} onClick={() => startConversion(bitrate, aspect, size, logo, file.path)} disabled={(file === null) ? true : false} text={(file === null) ? 'Файл не загружен' : 'Старт'}></MyButton></Col>}
+          {(finish == true) ? <Col className='d-flex flex-row justify-content-around'><Col md={5}><MyButton style={{}} onClick={() => startConversion(bitrate, aspect, size, logo.path, file.path)} disabled={true} text={'Файл готов'}></MyButton></Col> <Col md={5}><a href="http://localhost:5000/api/v1/download"><MyButton text={'Скачать'} onClick={() => {downloadFile(file)}}></MyButton></a></Col> </Col>  : <Col><MyButton style={{}} onClick={() => startConversion(bitrate, aspect, size, logo.path, file.path)} disabled={(file === null) ? true : false} text={(file === null) ? 'Файл не загружен' : 'Старт'}></MyButton></Col>}
 
 
         </Row>
